@@ -11,6 +11,11 @@ val apacheCommonIOVersion = "2.11.0"
 val scalacticVersion = "3.2.9"
 val generexVersion = "1.0.2"
 
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
+
 resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
@@ -23,5 +28,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % scalacticVersion % Test,
   "org.scalatest" %% "scalatest-featurespec" % scalacticVersion % Test,
   "com.typesafe" % "config" % typesafeConfigVersion,
-  "com.github.mifmif" % "generex" % generexVersion
+  "com.github.mifmif" % "generex" % generexVersion,
+  "com.amazonaws" % "aws-java-sdk" % "1.3.32",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.12.98"
 )

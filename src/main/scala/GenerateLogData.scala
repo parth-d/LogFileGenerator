@@ -9,7 +9,14 @@
  */
 import Generation.{LogMsgSimulator, RandomStringGenerator}
 import HelperUtils.{CreateLogger, Parameters}
+import com.amazonaws.ClientConfiguration
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.s3.{AmazonS3Client, AmazonS3ClientBuilder}
+import org.apache.commons.io.FileUtils
 
+import java.io.{BufferedWriter, File, FileWriter}
+import java.util.Date
 import collection.JavaConverters.*
 import scala.concurrent.{Await, Future, duration}
 import concurrent.ExecutionContext.Implicits.global
@@ -19,22 +26,22 @@ import scala.util.{Failure, Success, Try}
 object GenerateLogData:
   val logger = CreateLogger(classOf[GenerateLogData.type])
 
-//this is the main starting point for the log generator
-@main def runLogGenerator =
-  import Generation.RSGStateMachine.*
-  import Generation.*
-  import HelperUtils.Parameters.*
-  import GenerateLogData.*
+  def main(args: Array[String]): Unit = {
+    import Generation.RSGStateMachine.*
+    import Generation.*
+    import HelperUtils.Parameters.*
+    import GenerateLogData.*
 
-  logger.info("Log data generator started...")
-  val INITSTRING = "Starting the string generation"
-  val init = unit(INITSTRING)
+    logger.info("Log data generator started...")
+    val INITSTRING = "Starting the string generation"
+    val init = unit(INITSTRING)
 
-  val logFuture = Future {
-    LogMsgSimulator(init(RandomStringGenerator((Parameters.minStringLength, Parameters.maxStringLength), Parameters.randomSeed)), Parameters.maxCount)
+    val logFuture = Future {
+      LogMsgSimulator(init(RandomStringGenerator((Parameters.minStringLength, Parameters.maxStringLength), Parameters.randomSeed)), Parameters.maxCount)
+    }
+    Try(Await.result(logFuture, Parameters.runDurationInMinutes)) match {
+      case Success(value) => logger.info(s"Log data generation has completed after generating ${Parameters.maxCount} records.")
+      case Failure(exception) => logger.info(s"Log data generation has completed within the allocated time, ${Parameters.runDurationInMinutes}")
+    }
+
   }
-  Try(Await.result(logFuture, Parameters.runDurationInMinutes)) match {
-    case Success(value) => logger.info(s"Log data generation has completed after generating ${Parameters.maxCount} records.")
-    case Failure(exception) => logger.info(s"Log data generation has completed within the allocated time, ${Parameters.runDurationInMinutes}")
-  }
-

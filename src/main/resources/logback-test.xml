@@ -6,22 +6,56 @@
     </appender>
 
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- Daily rollover -->
-            <fileNamePattern>log/LogFileGenerator.%d{yyyy-MM-dd}.log</fileNamePattern>
-
-            <maxHistory>100</maxHistory>
-        </rollingPolicy>
-
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>log/log.log</file>
+        <append>true</append>
+        <!-- set immediateFlush to false for much higher logging throughput -->
+        <immediateFlush>true</immediateFlush>
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
         </encoder>
     </appender>
+
+    <appender name="S3FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/tmp/log/myapp.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.S3FixedWindowRollingPolicy">
+            <fileNamePattern>/tmp/log/myapp.log.%i.gz</fileNamePattern>
+            <awsAccessKey>AKIAVJTBGFFYAN2Z255E</awsAccessKey>
+            <awsSecretKey>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</awsSecretKey>
+            <s3BucketName>logsinput</s3BucketName>
+            <s3FolderName>log</s3FolderName>
+
+            <rolloverOnExit>true</rolloverOnExit>
+            <shutdownHookType>SERVLET_CONTEXT</shutdownHookType>
+        </rollingPolicy>
+
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>10MB</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            &lt;!&ndash; Daily rollover &ndash;&gt;-->
+<!--            <fileNamePattern>log/LogFileGenerator.%d{yyyy-MM}.log</fileNamePattern>-->
+
+<!--            <maxHistory>100</maxHistory>-->
+<!--        </rollingPolicy>-->
+
+<!--        <encoder>-->
+<!--            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
 
     <!-- Configure so that it outputs to both console and log file -->
     <root level="debug">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="S3FILE" />
     </root>
 </configuration>

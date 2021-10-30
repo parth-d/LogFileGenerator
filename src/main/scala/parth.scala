@@ -6,10 +6,10 @@ import scala.io.Source
 object parth:
   val list = List.range(0, 50)
 
-  @main def main = {
+  def main(args: Array[String]): Unit = {
     val file = Source.fromResource("LogFileGenerator.2021-10-29.log").getLines().toList
     val median = SimpleDateFormat("HH:mm:ss.SSS").parse("13:19:07.000").toInstant
-    val range = 4
+    val range = 1
     val logPresent = findelem(file, median, range, 0, file.length)
     if(logPresent != -1){
 //      println("Starting for index: " + logPresent)
